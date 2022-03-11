@@ -2,11 +2,12 @@ package it.thedarksword.skillmastery.skill.skills;
 
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.entity.Item;
+import org.bukkit.event.player.PlayerFishEvent;
 
-public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
+public class FishingSkill implements Skill<PlayerFishEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 1.5);
+    private static final SkillData skillData = new SkillData(50, 4);
 
     private int level;
     private int exp;
@@ -14,7 +15,7 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     private int x2;
     private int x3;
 
-    public CombatSkill(int level, int exp) {
+    public FishingSkill(int level, int exp) {
         this.level = level;
         this.exp = exp;
         recalculatePercentage();
@@ -42,24 +43,11 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     }
 
     @Override
-    public boolean process(EntityDamageByEntityEvent event) {
+    public boolean process(PlayerFishEvent event) {
         int take = random.nextInt(100);
-        double finalDamage = event.getFinalDamage();
-        boolean result = false;
-        if(x3 == 0) {
-            if(take < x2) {
-                finalDamage *= 2;
-                result = true;
-            }
-        } else if(take < x3) {
-            finalDamage *= 3;
-            result = true;
-        } else {
-            finalDamage *= 2;
-            result = true;
-        }
-        event.setDamage(finalDamage);
-        return result;
+        Item item = (Item) event.getCaught();
+        //item.setItemStack();
+        return false;
     }
 
     @Override

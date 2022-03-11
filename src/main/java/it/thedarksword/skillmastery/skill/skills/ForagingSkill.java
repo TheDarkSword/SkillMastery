@@ -1,12 +1,16 @@
 package it.thedarksword.skillmastery.skill.skills;
 
+import it.thedarksword.skillmastery.SkillMastery;
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.Location;
+import org.bukkit.World;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.inventory.ItemStack;
 
-public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
+public class ForagingSkill implements Skill<BlockBreakEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 1.5);
+    private static final SkillData skillData = new SkillData(50, 4);
 
     private int level;
     private int exp;
@@ -14,7 +18,7 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     private int x2;
     private int x3;
 
-    public CombatSkill(int level, int exp) {
+    public ForagingSkill(int level, int exp) {
         this.level = level;
         this.exp = exp;
         recalculatePercentage();
@@ -42,23 +46,22 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     }
 
     @Override
-    public boolean process(EntityDamageByEntityEvent event) {
+    public boolean process(BlockBreakEvent event) {
+        if(SkillMastery.instance().blockManager().isPlaced(event.getBlock())) return false;
         int take = random.nextInt(100);
-        double finalDamage = event.getFinalDamage();
         boolean result = false;
         if(x3 == 0) {
             if(take < x2) {
-                finalDamage *= 2;
+                doEvent(event);
                 result = true;
             }
-        } else if(take < x3) {
-            finalDamage *= 3;
-            result = true;
         } else {
-            finalDamage *= 2;
+            if(take < x3) {
+                doEvent(event);
+            }
+            doEvent(event);
             result = true;
         }
-        event.setDamage(finalDamage);
         return result;
     }
 
@@ -73,6 +76,14 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
         } else {
             this.x2 = (int) Math.round(25 * skillData.incrementPerLevel());
             this.x3 = (int) Math.round(level-25 * skillData.incrementPerLevel());
+        }
+    }
+
+    private void doEvent(BlockBreakEvent event) {
+        World world = event.getBlock().getWorld();
+        Location location = event.getBlock().getLocation();
+        for (ItemStack drop : event.getBlock().getDrops()) {
+            world.dropItemNaturally(location, drop);
         }
     }
 }

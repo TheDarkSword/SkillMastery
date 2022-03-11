@@ -1,12 +1,18 @@
 package it.thedarksword.skillmastery.skill.skills;
 
+import it.thedarksword.skillmastery.SkillMastery;
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
-public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
+public class AlchemySkill implements Skill<InventoryClickEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 1.5);
+    private static final SkillData skillData = new SkillData(50, 4);
 
     private int level;
     private int exp;
@@ -14,7 +20,7 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     private int x2;
     private int x3;
 
-    public CombatSkill(int level, int exp) {
+    public AlchemySkill(int level, int exp) {
         this.level = level;
         this.exp = exp;
         recalculatePercentage();
@@ -41,25 +47,29 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
         this.exp = exp;
     }
 
+    //TODO Check if work
     @Override
-    public boolean process(EntityDamageByEntityEvent event) {
+    public boolean process(InventoryClickEvent event) {
         int take = random.nextInt(100);
-        double finalDamage = event.getFinalDamage();
-        boolean result = false;
+        int amplifier;
         if(x3 == 0) {
             if(take < x2) {
-                finalDamage *= 2;
-                result = true;
+                amplifier = 2;
+            } else {
+                amplifier = 1;
             }
         } else if(take < x3) {
-            finalDamage *= 3;
-            result = true;
+            amplifier = 3;
         } else {
-            finalDamage *= 2;
-            result = true;
+            amplifier = 2;
         }
-        event.setDamage(finalDamage);
-        return result;
+        ItemStack potion = event.getCurrentItem();
+        PotionMeta meta = (PotionMeta) potion.getItemMeta();
+        PotionData potionData = meta.getBasePotionData();
+        PotionEffectType type = potionData.getType().getEffectType();
+        meta.addCustomEffect(new PotionEffect(type,
+                SkillMastery.instance().potionManager().duration(type, potionData.isExtended(), potionData.isUpgraded()), amplifier), true);
+        return amplifier != 1;
     }
 
     @Override

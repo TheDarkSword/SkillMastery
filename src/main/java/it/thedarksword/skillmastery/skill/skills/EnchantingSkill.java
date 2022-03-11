@@ -2,11 +2,11 @@ package it.thedarksword.skillmastery.skill.skills;
 
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.player.PlayerExpChangeEvent;
 
-public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
+public class EnchantingSkill implements Skill<PlayerExpChangeEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 1.5);
+    private static final SkillData skillData = new SkillData(50, 4);
 
     private int level;
     private int exp;
@@ -14,7 +14,7 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     private int x2;
     private int x3;
 
-    public CombatSkill(int level, int exp) {
+    public EnchantingSkill(int level, int exp) {
         this.level = level;
         this.exp = exp;
         recalculatePercentage();
@@ -42,23 +42,23 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     }
 
     @Override
-    public boolean process(EntityDamageByEntityEvent event) {
+    public boolean process(PlayerExpChangeEvent event) {
         int take = random.nextInt(100);
-        double finalDamage = event.getFinalDamage();
+        int finalAmount = event.getAmount();
         boolean result = false;
         if(x3 == 0) {
             if(take < x2) {
-                finalDamage *= 2;
+                finalAmount *= 2;
                 result = true;
             }
         } else if(take < x3) {
-            finalDamage *= 3;
+            finalAmount *= 3;
             result = true;
         } else {
-            finalDamage *= 2;
+            finalAmount *= 2;
             result = true;
         }
-        event.setDamage(finalDamage);
+        event.setAmount(finalAmount);
         return result;
     }
 

@@ -18,7 +18,6 @@ import java.util.Map;
 public class SkillPlayer {
 
     private final Player player;
-    @Getter(AccessLevel.PRIVATE)
     private final Map<SkillType, Skill<? extends Event>> skills = Maps.newEnumMap(SkillType.class);
     private final SkillMastery skillMastery;
 
@@ -41,7 +40,12 @@ public class SkillPlayer {
         });
     }
 
-    public Skill<? extends Event> skill(SkillType skillType) {
-        return this.skills.get(skillType);
+    @SuppressWarnings("unchecked")
+    public <T extends Event> Skill<T> skill(SkillType skillType) {
+        return (Skill<T>) this.skills.get(skillType);
+    }
+
+    public void save() {
+        skillMastery.queryManager().skillPlayerSave(this).execAsync();
     }
 }
