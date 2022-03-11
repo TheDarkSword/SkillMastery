@@ -2,8 +2,9 @@ name: SkillMastery
 version: 1.0
 author: TheDarkSword
 main: it.thedarksword.skillmastery.SkillMasteryPlugin
-depend: [Basement]
+depend: [Basement, CoreProtect, WorldGuard]
 description: Just a Skill Plugin for Mineblock
+api-version: 1.18
 
 commands:
   skills:
