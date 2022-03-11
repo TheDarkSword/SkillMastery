@@ -40,7 +40,9 @@ public class PlayerManager {
     }
 
     public void cachePlayer(Player player) {
-        skillPlayerCache.put(player.getName(), skillPlayer(player));
+        SkillPlayer skillPlayer = skillPlayer(player);
+        skillPlayerCache.put(player.getName(), skillPlayer);
         skillPlayers.remove(player);
+        skillPlayer.save();
     }
 }
