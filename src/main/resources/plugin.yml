@@ -1,0 +1,9 @@
+name: SkillMastery
+version: 1.0
+author: TheDarkSword
+main: it.thedarksword.skillmastery.SkillMasteryPlugin
+depend: [Basement]
+description: Just a Skill Plugin for Mineblock
+
+commands:
+  skills:

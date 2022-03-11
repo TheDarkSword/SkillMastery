@@ -1,0 +1,46 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+}
+
+group 'it.thedarksword'
+version '1.0'
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    compileOnly 'org.spigotmc:spigot:1.18.2-R0.1-SNAPSHOT'
+    compileOnly 'fr.minuskube.inv:smart-invs:1.2.7'
+
+    compileOnly 'it.thedarksword.basement:api:1.0'
+    compileOnly 'it.thedarksword.basement:api-bukkit:1.0'
+
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+}
+
+processResources {
+    from(sourceSets.main.resources.srcDirs) {
+        duplicatesStrategy = 'include'
+        expand 'pluginVersion': project.version
+        include 'plugin.yml'
+    }
+}
+
+
+
+shadowJar {
+    //relocate 'io.netty', 'basement.netty'
+    archiveFileName = "Basement-Bukkit-${project.version}.jar"
+    dependencies {
+        exclude(dependency(':lombok'))
+        exclude(dependency(':spigot'))
+    }
+}
+
+artifacts {
+    archives shadowJar
+}
