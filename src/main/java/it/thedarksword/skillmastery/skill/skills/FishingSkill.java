@@ -2,12 +2,14 @@ package it.thedarksword.skillmastery.skill.skills;
 
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
+import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.event.player.PlayerFishEvent;
 
 public class FishingSkill implements Skill<PlayerFishEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 4);
+    private static final SkillData skillData = new SkillData(50, 4, Material.FISHING_ROD, "Pesca",
+            "&7Pesca per ottenere XP!");
 
     private int level;
     private int exp;
@@ -48,6 +50,16 @@ public class FishingSkill implements Skill<PlayerFishEvent> {
         Item item = (Item) event.getCaught();
         //item.setItemStack();
         return false;
+    }
+
+    @Override
+    public int percentageX2() {
+        return x2;
+    }
+
+    @Override
+    public int percentageX3() {
+        return x3;
     }
 
     @Override

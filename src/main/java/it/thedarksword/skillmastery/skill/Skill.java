@@ -14,6 +14,10 @@ public interface Skill<E extends Event> {
             1_800_000, 1_900_000, 2_000_000, 2_100_000, 2_200_000, 2_300_000, 2_400_000, 2_500_000, 2_600_000, 2_750_000, 2_900_000, 3_100_000, 3_400_000,
             3_700_000, 4_000_000);
 
+    static int calculatePercentage(int level, SkillData skillData) {
+        return (int) Math.round(level * skillData.incrementPerLevel());
+    }
+
     /**
      * Get the current level of the skill
      * @return the current level
@@ -40,10 +44,15 @@ public interface Skill<E extends Event> {
 
     /**
      * Increment experience of the skill, if max call levelUp
+     * @return true if levelup
      */
-    default void experience() {
+    default boolean experience() {
         exp(level() < 30 ? exp() + 9 : exp() + 15);
-        if(levelUpExp.get(level()-1) <= exp()) levelUp();
+        if(levelUpExp.get(level()) <= exp()) {
+            levelUp();
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -60,6 +69,22 @@ public interface Skill<E extends Event> {
      * @return true if the effect is applied, false otherwise
      */
     boolean process(E event);
+
+    default int expToNextLevel() {
+        return levelUpExp.get(level());
+    }
+
+    /**
+     * Get the percentage of activation of skill x2
+     * @return the percentage of activation of skill x2
+     */
+    int percentageX2();
+
+    /**
+     * Get the percentage of activation of skill x3
+     * @return the percentage of activation of skill x3
+     */
+    int percentageX3();
 
     /**
      * Get the skill data of the skill that contains constant values

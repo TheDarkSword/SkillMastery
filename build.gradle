@@ -34,11 +34,8 @@ processResources {
     }
 }
 
-
-
 shadowJar {
-    //relocate 'io.netty', 'basement.netty'
-    archiveFileName = "Basement-Bukkit-${project.version}.jar"
+    archiveFileName = "SkillMastery-${project.version}.jar"
     dependencies {
         exclude(dependency(':lombok'))
         exclude(dependency(':spigot'))

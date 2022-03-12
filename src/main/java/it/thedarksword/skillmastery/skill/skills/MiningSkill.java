@@ -3,6 +3,7 @@ package it.thedarksword.skillmastery.skill.skills;
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -12,7 +13,8 @@ import java.util.List;
 
 public class MiningSkill implements Skill<BlockBreakEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 4);
+    private static final SkillData skillData = new SkillData(50, 4, Material.STONE_PICKAXE, "Minatore",
+            "&7Scava i minerali per", "&7ottenere XP!");
 
     private int level;
     private int exp;
@@ -64,6 +66,16 @@ public class MiningSkill implements Skill<BlockBreakEvent> {
             result = true;
         }
         return result;
+    }
+
+    @Override
+    public int percentageX2() {
+        return x2;
+    }
+
+    @Override
+    public int percentageX3() {
+        return x3;
     }
 
     @Override

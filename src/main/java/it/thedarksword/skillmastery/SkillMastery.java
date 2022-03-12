@@ -4,6 +4,7 @@ import ch.jalu.configme.SettingsManager;
 import ch.jalu.configme.SettingsManagerBuilder;
 import it.thedarksword.basement.api.bukkit.BasementBukkit;
 import it.thedarksword.skillmastery.blocks.BlockManager;
+import it.thedarksword.skillmastery.commands.SkillsCommand;
 import it.thedarksword.skillmastery.config.SkillConfig;
 import it.thedarksword.skillmastery.listeners.PlayerListener;
 import it.thedarksword.skillmastery.mysql.manager.QueryManager;
@@ -15,6 +16,9 @@ import lombok.experimental.Accessors;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -59,12 +63,19 @@ public class SkillMastery {
     }
 
     protected void enable() {
-
         plugin.getServer().getPluginManager().registerEvents(new PlayerListener(this), plugin);
+
+        plugin.getCommand("skills").setExecutor(new SkillsCommand());
+
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            player.getServer().getPluginManager().callEvent(new PlayerJoinEvent(player, ""));
+        }
     }
 
     protected void disable() {
-
+        for (Player player : plugin.getServer().getOnlinePlayers()) {
+            player.getServer().getPluginManager().callEvent(new PlayerQuitEvent(player, ""));
+        }
     }
 
     private CoreProtectAPI getCoreProtect() {
@@ -73,11 +84,13 @@ public class SkillMastery {
         // Check that the API is enabled
         CoreProtectAPI coreProtectAPI = ((CoreProtect) Objects.requireNonNull(plugin)).getAPI();
         if (!coreProtectAPI.isEnabled()) {
+            plugin.getLogger().severe("CoreProtectAPI are not enabled");
             return null;
         }
 
         // Check that a compatible version of the API is loaded
-        if (coreProtectAPI.APIVersion() < 9) {
+        if (coreProtectAPI.APIVersion() < 8) {
+            plugin.getLogger().severe("CoreProtectAPI API version is too low (" + coreProtectAPI.APIVersion() + ")");
             return null;
         }
 

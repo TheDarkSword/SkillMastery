@@ -3,6 +3,7 @@ package it.thedarksword.skillmastery.skill.skills;
 import it.thedarksword.skillmastery.SkillMastery;
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
+import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.PotionMeta;
@@ -12,7 +13,8 @@ import org.bukkit.potion.PotionEffectType;
 
 public class AlchemySkill implements Skill<InventoryClickEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 4);
+    private static final SkillData skillData = new SkillData(50, 4, Material.BREWING_STAND, "Alchimia",
+            "&7Prepara le pozioni per", "&7guadagnare XP!");
 
     private int level;
     private int exp;
@@ -70,6 +72,16 @@ public class AlchemySkill implements Skill<InventoryClickEvent> {
         meta.addCustomEffect(new PotionEffect(type,
                 SkillMastery.instance().potionManager().duration(type, potionData.isExtended(), potionData.isUpgraded()), amplifier), true);
         return amplifier != 1;
+    }
+
+    @Override
+    public int percentageX2() {
+        return x2;
+    }
+
+    @Override
+    public int percentageX3() {
+        return x3;
     }
 
     @Override

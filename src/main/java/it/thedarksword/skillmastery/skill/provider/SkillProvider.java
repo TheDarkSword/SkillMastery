@@ -23,6 +23,6 @@ public final class SkillProvider {
     }
 
     public Skill<? extends Event> provideSkill(SkillType skillType) {
-        return provideSkill(skillType, 1, 0);
+        return provideSkill(skillType, 0, 0);
     }
 }

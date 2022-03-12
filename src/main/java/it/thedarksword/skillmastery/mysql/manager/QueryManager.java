@@ -48,37 +48,37 @@ public class QueryManager {
         database.createTable(DatabaseConstants.SKILL_TABLE).ifNotExists(true)
                 .addColumn("id", MariaType.INT, QueryBuilderCreateTable.ColumnData.AUTO_INCREMENT)
                 .addColumn("player_id", MariaType.INT, QueryBuilderCreateTable.ColumnData.UNIQUE)
-                .addColumn("farming_level", MariaType.INT, "1", QueryBuilderCreateTable.ColumnData.NOT_NULL)
+                .addColumn("farming_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("farming_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
 
-                .addColumn("mining_level", MariaType.INT, "1", QueryBuilderCreateTable.ColumnData.NOT_NULL)
+                .addColumn("mining_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("mining_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
 
-                .addColumn("combat_level", MariaType.INT, "1", QueryBuilderCreateTable.ColumnData.NOT_NULL)
+                .addColumn("combat_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("combat_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
 
-                .addColumn("foraging_level", MariaType.INT, "1", QueryBuilderCreateTable.ColumnData.NOT_NULL)
+                .addColumn("foraging_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("foraging_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
 
-                .addColumn("fishing_level", MariaType.INT, "1", QueryBuilderCreateTable.ColumnData.NOT_NULL)
+                .addColumn("fishing_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("fishing_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
 
-                .addColumn("enchanting_level", MariaType.INT, "1", QueryBuilderCreateTable.ColumnData.NOT_NULL)
+                .addColumn("enchanting_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("enchanting_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
 
-                .addColumn("alchemy_level", MariaType.INT, "1", QueryBuilderCreateTable.ColumnData.NOT_NULL)
+                .addColumn("alchemy_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("alchemy_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .withPrimaryKeys("id").build().exec();
 
         skillPlayerAddPattern =  database.insert().ignore(true).into(DatabaseConstants.SKILL_TABLE).columnSchema("player_id");
         playerIdPattern =  database.select().columns("id").from(DatabaseConstants.PLAYER_TABLE);
-        skillPlayerQueryPattern =  database.select().columns("combat_level").from(DatabaseConstants.SKILL_TABLE, DatabaseConstants.PLAYER_TABLE);
+        skillPlayerQueryPattern =  database.select().columns("*").from(DatabaseConstants.SKILL_TABLE, DatabaseConstants.PLAYER_TABLE);
         skillPlayerSavePattern = database.update().table(DatabaseConstants.SKILL_TABLE);
     }
 
     public QueryBuilderInsert skillPlayerAdd(UUID uuid) {
         return skillPlayerAddPattern.patternClone()
-                .values(playerIdPattern.patternClone().where(WhereBuilder.builder().equals("uuid", uuid.toString()).close()));
+                .values(playerIdPattern.patternClone().where(WhereBuilder.builder().equals("uuid", uuid.toString()).close())).build();
     }
 
     public QueryBuilderSelect skillPlayerQuery(UUID uuid) {
@@ -93,7 +93,7 @@ public class QueryManager {
             String name = entry.getKey().name().toLowerCase();
             query.set(name + "_level", entry.getValue().level()).set(name + "_exp", entry.getValue().exp());
         }
-        return query.where(WhereBuilder.builder().equalsNQ(DatabaseConstants.PLAYER_TABLE + ".id", "player_id").and()
-                        .equals("uuid", skillPlayer.player().toString()).close()).build();
+        return query.where(WhereBuilder.builder().equals("player_id", playerIdPattern.patternClone().where(
+                WhereBuilder.builder().equals("uuid", skillPlayer.player().getUniqueId().toString()).close())).close()).build();
     }
 }

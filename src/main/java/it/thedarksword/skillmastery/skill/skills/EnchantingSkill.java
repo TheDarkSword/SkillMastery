@@ -2,11 +2,13 @@ package it.thedarksword.skillmastery.skill.skills;
 
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
+import org.bukkit.Material;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 
 public class EnchantingSkill implements Skill<PlayerExpChangeEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 4);
+    private static final SkillData skillData = new SkillData(50, 4, Material.ENCHANTING_TABLE, "Enchanting",
+            "&7Enchanta gli item per", "&7guadagnare XP!");
 
     private int level;
     private int exp;
@@ -60,6 +62,16 @@ public class EnchantingSkill implements Skill<PlayerExpChangeEvent> {
         }
         event.setAmount(finalAmount);
         return result;
+    }
+
+    @Override
+    public int percentageX2() {
+        return x2;
+    }
+
+    @Override
+    public int percentageX3() {
+        return x3;
     }
 
     @Override

@@ -33,7 +33,14 @@ public class SkillPlayer {
                     return;
                 }
                 resultSet.next();
-                skills.put(SkillType.COMBAT, skillMastery.skillProvider().provideSkill(SkillType.COMBAT, resultSet.getInt(0), resultSet.getInt(1)));
+                skills.put(SkillType.FARMING, skillMastery.skillProvider().provideSkill(SkillType.FARMING, resultSet.getInt(3), resultSet.getInt(4)));
+                skills.put(SkillType.MINING, skillMastery.skillProvider().provideSkill(SkillType.MINING, resultSet.getInt(5), resultSet.getInt(6)));
+                skills.put(SkillType.COMBAT, skillMastery.skillProvider().provideSkill(SkillType.COMBAT, resultSet.getInt(7), resultSet.getInt(8)));
+                skills.put(SkillType.FORAGING, skillMastery.skillProvider().provideSkill(SkillType.FORAGING, resultSet.getInt(9), resultSet.getInt(10)));
+                skills.put(SkillType.FISHING, skillMastery.skillProvider().provideSkill(SkillType.FISHING, resultSet.getInt(11), resultSet.getInt(12)));
+                skills.put(SkillType.ENCHANTING, skillMastery.skillProvider().provideSkill(SkillType.ENCHANTING, resultSet.getInt(13), resultSet.getInt(14)));
+                skills.put(SkillType.ALCHEMY, skillMastery.skillProvider().provideSkill(SkillType.ALCHEMY, resultSet.getInt(15), resultSet.getInt(16)));
+                resultSet.close();
             } catch (SQLException e) {
                 e.printStackTrace();
             }

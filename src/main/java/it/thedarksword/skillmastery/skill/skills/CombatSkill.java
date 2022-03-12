@@ -2,11 +2,13 @@ package it.thedarksword.skillmastery.skill.skills;
 
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
+import org.bukkit.Material;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
 public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 1.5);
+    private static final SkillData skillData = new SkillData(50, 1.5,  Material.STONE_SWORD, "Combattimento",
+            "&7Uccidi i mob per ottenere XP!");
 
     private int level;
     private int exp;
@@ -63,16 +65,26 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     }
 
     @Override
+    public int percentageX2() {
+        return x2;
+    }
+
+    @Override
+    public int percentageX3() {
+        return x3;
+    }
+
+    @Override
     public SkillData skillData() {
         return skillData;
     }
 
     private void recalculatePercentage() {
         if(level <= 25) {
-            this.x2 = (int) Math.round(level * skillData.incrementPerLevel());
+            this.x2 = Skill.calculatePercentage(level, skillData());
         } else {
-            this.x2 = (int) Math.round(25 * skillData.incrementPerLevel());
-            this.x3 = (int) Math.round(level-25 * skillData.incrementPerLevel());
+            this.x2 = Skill.calculatePercentage(25, skillData());
+            this.x3 = Skill.calculatePercentage(level-25, skillData());
         }
     }
 }

@@ -10,12 +10,16 @@ import it.thedarksword.skillmastery.player.SkillPlayer;
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillType;
 import lombok.RequiredArgsConstructor;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.item.ItemStack;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -73,7 +77,7 @@ public class PlayerListener implements Listener {
         Material type = event.getBlock().getType();
         if(skillMastery.blockManager().isLog(type)) {
             Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.FORAGING);
-            skill.experience();
+            experienceSkill(event.getPlayer(), skill);
             skill.process(event);
         } else if(skillMastery.blockManager().isFarm(type)) {
             Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.FARMING);
@@ -127,5 +131,15 @@ public class PlayerListener implements Listener {
 
         compound.a("taked", true);
         event.setCurrentItem(CraftItemStack.asBukkitCopy(itemStack));
+    }
+
+    private void experienceSkill(Player player, Skill<? extends Event> skill) {
+        if(skill.experience()) {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_AQUA + "Level UP " + skill.skillData().name() +
+                    " (" + skill.level() + "/" + skill.skillData().maxLevel() + ")"));
+        } else {
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_AQUA + "+" + (skill.level() < 30 ? 9 : 15) + " " +
+                    skill.skillData().name() + " (" + skill.exp() + "/" + skill.expToNextLevel() + ")"));
+        }
     }
 }
