@@ -60,9 +60,6 @@ public class QueryManager {
                 .addColumn("foraging_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("foraging_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
 
-                .addColumn("fishing_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
-                .addColumn("fishing_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
-
                 .addColumn("enchanting_level", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
                 .addColumn("enchanting_exp", MariaType.INT, "0", QueryBuilderCreateTable.ColumnData.NOT_NULL)
 
