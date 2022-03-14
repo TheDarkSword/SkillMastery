@@ -18,6 +18,7 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ public class SkillGUI extends CommonInventory implements InventoryProvider {
 
         int row = 1;
         int column = 0;
-        int level = 0;
+        int level = skill.level() >= 25 ? 25 : 0;
 
         contents.set(SlotPos.of(row, column), ClickableItem.empty(levelItem(skill, level)));
 
@@ -73,35 +74,67 @@ public class SkillGUI extends CommonInventory implements InventoryProvider {
         return SmartInventory.builder()
                 .provider(new SkillGUI(skillType))
                 .size(6, 9)
-                .title("Skill " + StringUtils.capitalize(skillType.name().toLowerCase()))
+                .title(skillType.inventoryName())
                 .build();
     }
 
-    //TODO: Build Lore in base at skill data
-    // ---- <- are 20
     private List<String> buildLore(Skill<? extends Event> skill) {
         SkillData skillData = skill.skillData();
-        return new ArrayList<>();
+        List<String> lore = new ArrayList<>();
+        String roman = RomanNumber.toRoman(skill.level()+1);
+
+        int expRemaining = skill.expToNextLevel();
+        int exp = skill.exp();
+        float percentage = exp * 100f/expRemaining;
+        lore.add("&7Progresso per il livello " + roman + ": &3" + decimalFormat.format(percentage) + "%");
+        int green = Math.round(20 * percentage/100);
+        StringBuilder levelString = new StringBuilder();
+        if(green != 0) levelString.append("&a");
+        levelString.append(PERCENTAGE_LITERAL.repeat(Math.max(0, green)));
+        if(green != 20) levelString.append("&f");
+        levelString.append(PERCENTAGE_LITERAL.repeat(Math.max(0, 20 - green)));
+        levelString.append(" &e").append(exp).append("&6/&e").append(expRemaining);
+        lore.add(levelString.toString());
+
+        lore.add("&7Ricompense:");
+        lore.add(" " + skillData.name() + " " + roman);
+        int x2 = skill.percentageX2();
+        if(x2 == 100) {
+            int x3 = skill.percentageX3();
+            lore.add("  &fDa (x3) &a+&8" + x3 + "\u279C&a+" + (x3 + skillData.incrementPerLevel()));
+        } else {
+            lore.add("  &fDa (x2) &a+&8" + x2 + "\u279C&a+" + (x2 + skillData.incrementPerLevel()));
+        }
+
+        lore.add(" ");
+        lore.add("&eClicca per vedere");
+        return lore;
     }
 
     private ItemStack levelItem(Skill<? extends Event> skill, int level) {
         SkillData skillData =  skill.skillData();
         String roman = RomanNumber.toRoman(level+1);
-        ItemBuilder builder;
+        ItemStack item;
         if(skill.level() == level) {
-            builder = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE, level+1)
+            item = new ItemBuilder(Material.YELLOW_STAINED_GLASS_PANE, level+1)
                     .setName("&e" + skillData.name() + " Livello " + roman)
-                    .setLore(buildLore(skill, level, roman));
+                    .setLore(buildLore(skill, level, roman)).build();
         } else if(skill.level() > level) {
-            builder = new ItemBuilder(Material.LIME_STAINED_GLASS_PANE, level+1)
+            item = new ItemBuilder(Material.PAPER, level+1)
                     .setName("&a" + skillData.name() + " Livello " + roman)
-                    .setLore(buildLore(skill, level, roman));
+                    .setLore(buildLore(skill, level, roman)).build();
+            ItemMeta meta = item.getItemMeta();
+            meta.setCustomModelData(5);
+            item.setItemMeta(meta);
         } else {
-            builder = new ItemBuilder(Material.RED_STAINED_GLASS_PANE, level+1)
+            item = new ItemBuilder(Material.PAPER, level+1)
                     .setName("&c" + skillData.name() + " Livello " + roman)
-                    .setLore(buildLore(skill, level, roman));
+                    .setLore(buildLore(skill, level, roman)).build();
+            ItemMeta meta = item.getItemMeta();
+            meta.setCustomModelData(4);
+            item.setItemMeta(meta);
         }
-        return builder.build();
+        return item;
     }
 
     private List<String> buildLore(Skill<? extends Event> skill, int level, String roman) {
@@ -116,7 +149,12 @@ public class SkillGUI extends CommonInventory implements InventoryProvider {
         } else {
             lore.add("  &fDa (x2) &a+&8" + x2 + "\u279C&a+" + (x2 + skillData.incrementPerLevel()));
         }
-        if(skill.level() == level) {
+        if(skill.level() == skillData.maxLevel()) {
+            lore.add("&7Progresso: &e100%");
+            lore.add("&a" + PERCENTAGE_LITERAL.repeat(20) + " &e0&6/&e0");
+            lore.add(" ");
+            lore.add("&aSBLOCCATO");
+        } else if(skill.level() == level) {
             lore.add(" ");
             int expRemaining = skill.expToNextLevel();
             int exp = skill.exp();

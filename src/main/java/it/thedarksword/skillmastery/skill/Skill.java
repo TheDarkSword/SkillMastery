@@ -71,6 +71,7 @@ public interface Skill<E extends Event> {
     boolean process(E event);
 
     default int expToNextLevel() {
+        if(level() == skillData().maxLevel()) return -1;
         return levelUpExp.get(level());
     }
 

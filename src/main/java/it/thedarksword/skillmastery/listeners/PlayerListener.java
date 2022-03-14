@@ -69,7 +69,7 @@ public class PlayerListener implements Listener {
         for (ProtectedRegion region : regions.getRegions()) {
             if (region.getId().startsWith("miner")) {
                 Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.MINING);
-                skill.experience();
+                experienceSkill(event.getPlayer(), skill);
                 skill.process(event);
                 return;
             }
@@ -81,7 +81,7 @@ public class PlayerListener implements Listener {
             skill.process(event);
         } else if(skillMastery.blockManager().isFarm(type)) {
             Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.FARMING);
-            skill.experience();
+            experienceSkill(event.getPlayer(), skill);
             skill.process(event);
         }
     }
@@ -89,7 +89,8 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onDeath(EntityDeathEvent event) {
         if(event.getEntity().getKiller() == null) return;
-        skillMastery.playerManager().skillPlayer(event.getEntity().getKiller()).<EntityDeathEvent>skill(SkillType.COMBAT).experience();
+        experienceSkill(event.getEntity().getKiller(), skillMastery.playerManager()
+                .skillPlayer(event.getEntity().getKiller()).<EntityDeathEvent>skill(SkillType.COMBAT));
     }
 
     @EventHandler
@@ -99,17 +100,9 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onFishing(PlayerFishEvent event) {
-        if(event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
-            Skill<PlayerFishEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.FISHING);
-            skill.experience();
-            skill.process(event);
-        }
-    }
-
-    @EventHandler
     public void onEnchant(EnchantItemEvent event) {
-        skillMastery.playerManager().skillPlayer(event.getEnchanter()).<EnchantItemEvent>skill(SkillType.ENCHANTING).experience();
+        experienceSkill(event.getEnchanter(), skillMastery.playerManager()
+                .skillPlayer(event.getEnchanter()).<EnchantItemEvent>skill(SkillType.ENCHANTING));
     }
 
     @EventHandler
@@ -123,13 +116,14 @@ public class PlayerListener implements Listener {
                 event.getCurrentItem().getType() != Material.POTION) return;
         ItemStack itemStack = CraftItemStack.asNMSCopy(event.getCurrentItem());
         NBTTagCompound compound = itemStack.t();
-        if(compound.b("taked")) return;
+        if(compound.b("took")) return;
+        Player player = (Player) event.getWhoClicked();
 
-        Skill<InventoryClickEvent> skill = skillMastery.playerManager().skillPlayer((Player) event.getWhoClicked()).skill(SkillType.ALCHEMY);
-        skill.experience();
+        Skill<InventoryClickEvent> skill = skillMastery.playerManager().skillPlayer(player).skill(SkillType.ALCHEMY);
+        experienceSkill(player, skill);
         skill.process(event);
 
-        compound.a("taked", true);
+        compound.a("took", true);
         event.setCurrentItem(CraftItemStack.asBukkitCopy(itemStack));
     }
 

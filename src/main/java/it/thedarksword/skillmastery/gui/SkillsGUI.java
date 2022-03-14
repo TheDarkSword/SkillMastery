@@ -25,7 +25,7 @@ public class SkillsGUI extends CommonInventory implements InventoryProvider {
             .id("skills")
             .provider(new SkillsGUI())
             .size(6, 9)
-            .title("Skills Menu")
+            .title("\uf000\u3F99")
             .build();
 
     @Override
@@ -47,13 +47,10 @@ public class SkillsGUI extends CommonInventory implements InventoryProvider {
 
     }
 
-    //TODO: Build Lore in base at skill data
-    // ---- <- are 20
     private List<String> buildLore(Skill<? extends Event> skill) {
         SkillData skillData = skill.skillData();
         List<String> lore = new ArrayList<>();
         String roman = RomanNumber.toRoman(skill.level()+1);
-        lore.add(" ");
 
         int expRemaining = skill.expToNextLevel();
         int exp = skill.exp();
