@@ -3,22 +3,30 @@ package it.thedarksword.skillmastery.skill.skills;
 import it.thedarksword.skillmastery.SkillMastery;
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
+import it.thedarksword.skillmastery.skill.SkillType;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
+
 public class ForagingSkill implements Skill<BlockBreakEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 4, Material.JUNGLE_SAPLING, "Taglialegna",
+    private static final SkillData skillData = new SkillData(50, 4, SkillType.FORAGING, Material.JUNGLE_SAPLING,
+            "Taglialegna", List.of(ChatColor.GOLD + "  \u2618 Fortuna del Boscaiolo",
+            ChatColor.WHITE + "  Incrementa la tua possibilità", ChatColor.WHITE + "  di ottenere più legno"),
+            ChatColor.GOLD + "   \u2618 Fortuna del Boscaiolo " + ChatColor.WHITE +
+                    "Incrementa la tua possibilità di ottenere più legno",
             "&7Taglia la legna per", "&7ottenere XP!");
 
     private int level;
     private int exp;
 
-    private int x2;
-    private int x3;
+    private double x2;
+    private double x3;
 
     public ForagingSkill(int level, int exp) {
         this.level = level;
@@ -68,27 +76,28 @@ public class ForagingSkill implements Skill<BlockBreakEvent> {
     }
 
     @Override
-    public int percentageX2() {
+    public double percentageX2() {
         return x2;
     }
 
     @Override
-    public int percentageX3() {
+    public double percentageX3() {
         return x3;
+    }
+
+    @Override
+    public void percentageX2(double x2) {
+        this.x2 = x2;
+    }
+
+    @Override
+    public void percentageX3(double x3) {
+        this.x3 = x3;
     }
 
     @Override
     public SkillData skillData() {
         return skillData;
-    }
-
-    private void recalculatePercentage() {
-        if(level <= 25) {
-            this.x2 = (int) Math.round(level * skillData.incrementPerLevel());
-        } else {
-            this.x2 = (int) Math.round(25 * skillData.incrementPerLevel());
-            this.x3 = (int) Math.round(level-25 * skillData.incrementPerLevel());
-        }
     }
 
     private void doEvent(BlockBreakEvent event) {

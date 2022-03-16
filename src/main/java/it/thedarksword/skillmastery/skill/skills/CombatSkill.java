@@ -2,19 +2,26 @@ package it.thedarksword.skillmastery.skill.skills;
 
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
+import it.thedarksword.skillmastery.skill.SkillType;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import java.util.List;
+
 public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 1.5,  Material.STONE_SWORD, "Combattimento",
+    private static final SkillData skillData = new SkillData(50, 1.5,  SkillType.COMBAT, Material.STONE_SWORD,
+            "Combattimento", List.of(ChatColor.WHITE + "  Infliggi più",
+            ChatColor.WHITE + "  danno ai mob"),
+            ChatColor.WHITE + "   Infliggi più danno ai mob",
             "&7Uccidi i mob per ottenere XP!");
 
     private int level;
     private int exp;
 
-    private int x2;
-    private int x3;
+    private double x2;
+    private double x3;
 
     public CombatSkill(int level, int exp) {
         this.level = level;
@@ -65,26 +72,27 @@ public class CombatSkill implements Skill<EntityDamageByEntityEvent> {
     }
 
     @Override
-    public int percentageX2() {
+    public double percentageX2() {
         return x2;
     }
 
     @Override
-    public int percentageX3() {
+    public double percentageX3() {
         return x3;
+    }
+
+    @Override
+    public void percentageX2(double x2) {
+        this.x2 = x2;
+    }
+
+    @Override
+    public void percentageX3(double x3) {
+        this.x3 = x3;
     }
 
     @Override
     public SkillData skillData() {
         return skillData;
-    }
-
-    private void recalculatePercentage() {
-        if(level <= 25) {
-            this.x2 = Skill.calculatePercentage(level, skillData());
-        } else {
-            this.x2 = Skill.calculatePercentage(25, skillData());
-            this.x3 = Skill.calculatePercentage(level-25, skillData());
-        }
     }
 }

@@ -2,19 +2,26 @@ package it.thedarksword.skillmastery.skill.skills;
 
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
+import it.thedarksword.skillmastery.skill.SkillType;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 
+import java.util.List;
+
 public class EnchantingSkill implements Skill<PlayerExpChangeEvent> {
 
-    private static final SkillData skillData = new SkillData(50, 4, Material.ENCHANTING_TABLE, "Enchanting",
+    private static final SkillData skillData = new SkillData(50, 4, SkillType.ENCHANTING, Material.ENCHANTING_TABLE,
+            "Enchanting", List.of(ChatColor.WHITE + "  Guadagna più esperienza",
+            ChatColor.WHITE + "  da tutte le fonti"),
+            ChatColor.WHITE + "   Incrementa la tua possibilità di ottenere più minerali",
             "&7Enchanta gli item per", "&7guadagnare XP!");
 
     private int level;
     private int exp;
 
-    private int x2;
-    private int x3;
+    private double x2;
+    private double x3;
 
     public EnchantingSkill(int level, int exp) {
         this.level = level;
@@ -65,26 +72,27 @@ public class EnchantingSkill implements Skill<PlayerExpChangeEvent> {
     }
 
     @Override
-    public int percentageX2() {
+    public double percentageX2() {
         return x2;
     }
 
     @Override
-    public int percentageX3() {
+    public double percentageX3() {
         return x3;
+    }
+
+    @Override
+    public void percentageX2(double x2) {
+        this.x2 = x2;
+    }
+
+    @Override
+    public void percentageX3(double x3) {
+        this.x3 = x3;
     }
 
     @Override
     public SkillData skillData() {
         return skillData;
-    }
-
-    private void recalculatePercentage() {
-        if(level <= 25) {
-            this.x2 = (int) Math.round(level * skillData.incrementPerLevel());
-        } else {
-            this.x2 = (int) Math.round(25 * skillData.incrementPerLevel());
-            this.x3 = (int) Math.round(level-25 * skillData.incrementPerLevel());
-        }
     }
 }

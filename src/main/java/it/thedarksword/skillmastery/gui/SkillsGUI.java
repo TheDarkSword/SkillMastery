@@ -5,19 +5,21 @@ import fr.minuskube.inv.SmartInventory;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
 import fr.minuskube.inv.content.SlotPos;
-import it.thedarksword.basement.api.bukkit.item.ItemBuilder;
 import it.thedarksword.skillmastery.SkillMastery;
 import it.thedarksword.skillmastery.player.SkillPlayer;
 import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
 import it.thedarksword.skillmastery.skill.SkillType;
+import it.thedarksword.skillmastery.utils.FormatNumber;
 import it.thedarksword.skillmastery.utils.RomanNumber;
-import org.bukkit.Material;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class SkillsGUI extends CommonInventory implements InventoryProvider {
 
@@ -25,26 +27,82 @@ public class SkillsGUI extends CommonInventory implements InventoryProvider {
             .id("skills")
             .provider(new SkillsGUI())
             .size(6, 9)
-            .title("\uf000\u3F99")
+            .title(ChatColor.WHITE + "\uf000\u3F99")
             .build();
 
     @Override
     public void init(Player player, InventoryContents contents) {
-        contents.fill(fillItem);
         SkillPlayer skillPlayer = SkillMastery.instance().playerManager().skillPlayer(player);
-        int column = 1;
-        for (Map.Entry<SkillType, Skill<? extends Event>> entry : skillPlayer.skills().entrySet()) {
-            contents.set(SlotPos.of(2, column++), ClickableItem.of(entry.getValue().skillData().builder()
-                    .addLore(buildLore(entry.getValue())).build(), event -> SkillGUI.inventory(entry.getKey()).open((Player) event.getWhoClicked())));
-        }
 
-        contents.set(SlotPos.of(5, 4), ClickableItem.of(new ItemBuilder(Material.BARRIER)
-                .setName("&cChiudi").build(), event -> event.getWhoClicked().closeInventory()));
+        //Foraging
+        ClickableItem mining = buildItem(skillPlayer.skill(SkillType.MINING));
+        contents.set(SlotPos.of(0, 0), mining);
+        contents.set(SlotPos.of(0, 1), mining);
+        contents.set(SlotPos.of(1, 0), mining);
+        contents.set(SlotPos.of(1, 1), mining);
+
+        //Farming
+        ClickableItem farming = buildItem(skillPlayer.skill(SkillType.FARMING));
+        contents.set(SlotPos.of(0, 3), farming);
+        contents.set(SlotPos.of(0, 4), farming);
+        contents.set(SlotPos.of(0, 5), farming);
+        contents.set(SlotPos.of(1, 3), farming);
+        contents.set(SlotPos.of(1, 4), farming);
+        contents.set(SlotPos.of(1, 5), farming);
+
+        //Combat
+        ClickableItem combat = buildItem(skillPlayer.skill(SkillType.COMBAT));
+        contents.set(SlotPos.of(0, 7), combat);
+        contents.set(SlotPos.of(0, 8), combat);
+        contents.set(SlotPos.of(1, 7), combat);
+        contents.set(SlotPos.of(1, 8), combat);
+
+        //Enchanting
+        ClickableItem enchanting = buildItem(skillPlayer.skill(SkillType.ENCHANTING));
+        contents.set(SlotPos.of(2, 0), enchanting);
+        contents.set(SlotPos.of(2, 1), enchanting);
+        contents.set(SlotPos.of(3, 0), enchanting);
+        contents.set(SlotPos.of(3, 1), enchanting);
+        contents.set(SlotPos.of(4, 0), enchanting);
+        contents.set(SlotPos.of(4, 1), enchanting);
+
+        //Alchemy
+        ClickableItem alchemy = buildItem(skillPlayer.skill(SkillType.ALCHEMY));
+        contents.set(SlotPos.of(2, 3), alchemy);
+        contents.set(SlotPos.of(2, 4), alchemy);
+        contents.set(SlotPos.of(2, 5), alchemy);
+        contents.set(SlotPos.of(3, 3), alchemy);
+        contents.set(SlotPos.of(3, 4), alchemy);
+        contents.set(SlotPos.of(3, 5), alchemy);
+        contents.set(SlotPos.of(4, 3), alchemy);
+        contents.set(SlotPos.of(4, 4), alchemy);
+        contents.set(SlotPos.of(4, 5), alchemy);
+
+        //Combat
+        ClickableItem foraging = buildItem(skillPlayer.skill(SkillType.FORAGING));
+        contents.set(SlotPos.of(2, 7), foraging);
+        contents.set(SlotPos.of(2, 8), foraging);
+        contents.set(SlotPos.of(3, 7), foraging);
+        contents.set(SlotPos.of(3, 8), foraging);
+        contents.set(SlotPos.of(4, 7), foraging);
+        contents.set(SlotPos.of(4, 8), foraging);
+
+        contents.set(SlotPos.of(5, 4), close);
     }
 
     @Override
     public void update(Player player, InventoryContents contents) {
 
+    }
+
+    private ClickableItem buildItem(Skill<? extends Event> skill) {
+        SkillData skillData = skill.skillData();
+        ItemStack stack = skillData.paper()
+                .addLore(buildLore(skill)).build();
+        ItemMeta meta = stack.getItemMeta();
+        meta.setCustomModelData(9);
+        stack.setItemMeta(meta);
+        return ClickableItem.of(stack, event -> SkillGUI.inventory(skillData.skillType()).open((Player) event.getWhoClicked()));
     }
 
     private List<String> buildLore(Skill<? extends Event> skill) {
@@ -62,18 +120,19 @@ public class SkillsGUI extends CommonInventory implements InventoryProvider {
         levelString.append(PERCENTAGE_LITERAL.repeat(Math.max(0, green)));
         if(green != 20) levelString.append("&f");
         levelString.append(PERCENTAGE_LITERAL.repeat(Math.max(0, 20 - green)));
-        levelString.append(" &e").append(exp).append("&6/&e").append(expRemaining);
+        levelString.append(" &e").append(FormatNumber.format(exp)).append("&6/&e").append(FormatNumber.format(expRemaining));
         lore.add(levelString.toString());
 
         lore.add("&7Ricompense:");
-        lore.add(" " + skillData.name() + " " + roman);
-        int x2 = skill.percentageX2();
+        lore.add(" &e" + skillData.name() + " " + roman);
+        double x2 = skill.percentageX2();
         if(x2 == 100) {
-            int x3 = skill.percentageX3();
-            lore.add("  &fDa (x3) &a+&8" + x3 + "\u279C&a+" + (x3 + skillData.incrementPerLevel()));
+            double x3 = skill.percentageX3();
+            lore.add("  &fConcede &8" + decimalFormat.format(x3) + "\u279C&a" + decimalFormat.format(x3 + skillData.incrementPerLevel()));
         } else {
-            lore.add("  &fDa (x2) &a+&8" + x2 + "\u279C&a+" + (x2 + skillData.incrementPerLevel()));
+            lore.add("  &fConcede &8" + decimalFormat.format(x2) + "\u279C&a" + decimalFormat.format(x2 + skillData.incrementPerLevel()));
         }
+        lore.addAll(skillData.description());
 
         lore.add(" ");
         lore.add("&eClicca per vedere");
