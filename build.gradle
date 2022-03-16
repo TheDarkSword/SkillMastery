@@ -6,10 +6,17 @@ plugins {
 group 'it.thedarksword'
 version '1.0'
 
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
 repositories {
     mavenCentral()
     maven { url 'https://maven.playpro.com' }
     maven { url "https://maven.enginehub.org/repo/" }
+    maven { url "https://jitpack.io" }
     mavenLocal()
 }
 
@@ -21,6 +28,7 @@ dependencies {
     compileOnly 'it.thedarksword.basement:api-bukkit:1.0'
     compileOnly 'net.coreprotect:coreprotect:21.0'
     compileOnly 'com.sk89q.worldguard:worldguard-bukkit:7.0.6'
+    compileOnly 'com.github.MilkBowl:VaultAPI:1.7'
 
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'

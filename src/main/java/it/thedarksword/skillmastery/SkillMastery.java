@@ -8,6 +8,7 @@ import it.thedarksword.skillmastery.commands.SkillsCommand;
 import it.thedarksword.skillmastery.config.SkillConfig;
 import it.thedarksword.skillmastery.listeners.PlayerListener;
 import it.thedarksword.skillmastery.mysql.manager.QueryManager;
+import it.thedarksword.skillmastery.player.SkillPlayer;
 import it.thedarksword.skillmastery.player.manager.PlayerManager;
 import it.thedarksword.skillmastery.potions.PotionManager;
 import it.thedarksword.skillmastery.skill.provider.SkillProvider;
@@ -15,15 +16,13 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import net.coreprotect.CoreProtect;
 import net.coreprotect.CoreProtectAPI;
-import org.bukkit.block.Block;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -37,6 +36,7 @@ public class SkillMastery {
     private final JavaPlugin plugin;
     private final BasementBukkit basement;
     private final CoreProtectAPI coreProtectAPI;
+    private final Economy economy;
 
     private final SettingsManager config;
 
@@ -51,6 +51,7 @@ public class SkillMastery {
         this.plugin = plugin;
         this.basement = Objects.requireNonNull(plugin.getServer().getServicesManager().getRegistration(BasementBukkit.class)).getProvider();
         coreProtectAPI = getCoreProtect();
+        economy = setupEconomy();
 
         this.config = SettingsManagerBuilder.withYamlFile(new File(plugin.getDataFolder(), "config.yml"))
                 .configurationData(SkillConfig.class).useDefaultMigrationService().create();
@@ -68,13 +69,14 @@ public class SkillMastery {
         plugin.getCommand("skills").setExecutor(new SkillsCommand());
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            player.getServer().getPluginManager().callEvent(new PlayerJoinEvent(player, ""));
+            queryManager.skillPlayerAdd(player.getUniqueId()).exec();
+            playerManager.skillPlayer(player, new SkillPlayer(player, this));
         }
     }
 
     protected void disable() {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            player.getServer().getPluginManager().callEvent(new PlayerQuitEvent(player, ""));
+            playerManager.skillPlayer(player).save();
         }
     }
 
@@ -95,5 +97,16 @@ public class SkillMastery {
         }
 
         return coreProtectAPI;
+    }
+
+    private Economy setupEconomy() {
+        if (plugin.getServer().getPluginManager().getPlugin("Vault") == null) {
+            return null;
+        }
+        RegisteredServiceProvider<Economy> rsp = plugin.getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return null;
+        }
+        return rsp.getProvider();
     }
 }
