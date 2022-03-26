@@ -76,8 +76,10 @@ public class AlchemySkill implements Skill<InventoryClickEvent> {
         PotionMeta meta = (PotionMeta) potion.getItemMeta();
         PotionData potionData = meta.getBasePotionData();
         PotionEffectType type = potionData.getType().getEffectType();
-        meta.addCustomEffect(new PotionEffect(type,
-                SkillMastery.instance().potionManager().duration(type, potionData.isExtended(), potionData.isUpgraded()), amplifier), true);
+        if(type == null) return false;
+        int duration = SkillMastery.instance().potionManager().duration(type, potionData.isExtended(), potionData.isUpgraded());
+        if(duration == 0) return false;
+        meta.addCustomEffect(new PotionEffect(type, duration, amplifier), true);
         return amplifier != 1;
     }
 

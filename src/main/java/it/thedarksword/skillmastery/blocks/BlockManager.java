@@ -69,5 +69,11 @@ public class BlockManager {
 
     private void loadFarm() {
         farm.add(Material.WHEAT);
+        farm.add(Material.NETHER_WART);
+        farm.add(Material.PUMPKIN_STEM);
+        farm.add(Material.MELON_STEM);
+        farm.add(Material.CARROTS);
+        farm.add(Material.POTATOES);
+        farm.add(Material.BEETROOTS);
     }
 }

@@ -36,9 +36,11 @@ public class PotionManager {
     }
 
     public int duration(PotionEffectType type, boolean isExtended, boolean isUpgraded) {
-        if(isUpgraded) return durations.get(type).upgraded();
-        if(isExtended) return durations.get(type).extended();
-        return durations.get(type).normal;
+        Duration duration = durations.get(type);
+        if(duration == null) return 0;
+        if(isUpgraded) return duration.upgraded();
+        if(isExtended) return duration.extended();
+        return duration.normal;
     }
 
     private record Duration(int normal, int extended, int upgraded) {

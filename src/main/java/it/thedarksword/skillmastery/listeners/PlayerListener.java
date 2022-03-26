@@ -23,22 +23,22 @@ import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.player.PlayerExpChangeEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerKickEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.inventory.BrewerInventory;
+import org.bukkit.metadata.FixedMetadataValue;
 
 import java.text.DecimalFormat;
 
@@ -75,6 +75,13 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onBoneMeal(PlayerInteractEvent event) {
+        if(event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getItem() != null && event.getItem().getType() == Material.BONE_MEAL && event.getClickedBlock() != null) {
+            event.getClickedBlock().setMetadata("bone", new FixedMetadataValue(skillMastery.plugin(), true));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
         if(event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
         Location location = event.getBlock().getLocation();
@@ -93,7 +100,9 @@ public class PlayerListener implements Listener {
             Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.FORAGING);
             experienceSkill(event.getPlayer(), skill);
             skill.process(event);
-        } else if(skillMastery.blockManager().isFarm(type)) {
+        } else if(skillMastery.blockManager().isFarm(type) && !event.getBlock().hasMetadata("bone")) {
+            Ageable ageable = (Ageable) event.getBlock().getBlockData();
+            if(ageable.getAge() != ageable.getMaximumAge()) return;
             Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.FARMING);
             experienceSkill(event.getPlayer(), skill);
             skill.process(event);
@@ -130,7 +139,7 @@ public class PlayerListener implements Listener {
                 event.getCurrentItem().getType() != Material.POTION) return;
         ItemStack itemStack = CraftItemStack.asNMSCopy(event.getCurrentItem());
         NBTTagCompound compound = itemStack.t();
-        if(compound.b("took")) return;
+        if(compound.e("took")) return;
         Player player = (Player) event.getWhoClicked();
 
         Skill<InventoryClickEvent> skill = skillMastery.playerManager().skillPlayer(player).skill(SkillType.ALCHEMY);
