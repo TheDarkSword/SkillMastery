@@ -89,22 +89,25 @@ public class PlayerListener implements Listener {
                 .getApplicableRegions(BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
         for (ProtectedRegion region : regions.getRegions()) {
             if (region.getId().startsWith("miner")) {
-                Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.MINING);
-                experienceSkill(event.getPlayer(), skill);
+                SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getPlayer());
+                Skill<BlockBreakEvent> skill = skillPlayer.skill(SkillType.MINING);
+                experienceSkill(skillPlayer, skill);
                 skill.process(event);
                 return;
             }
         }
         Material type = event.getBlock().getType();
         if(skillMastery.blockManager().isLog(type)) {
-            Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.FORAGING);
-            experienceSkill(event.getPlayer(), skill);
+            SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getPlayer());
+            Skill<BlockBreakEvent> skill = skillPlayer.skill(SkillType.FORAGING);
+            experienceSkill(skillPlayer, skill);
             skill.process(event);
         } else if(skillMastery.blockManager().isFarm(type) && !event.getBlock().hasMetadata("bone")) {
             Ageable ageable = (Ageable) event.getBlock().getBlockData();
             if(ageable.getAge() != ageable.getMaximumAge()) return;
-            Skill<BlockBreakEvent> skill = skillMastery.playerManager().skillPlayer(event.getPlayer()).skill(SkillType.FARMING);
-            experienceSkill(event.getPlayer(), skill);
+            SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getPlayer());
+            Skill<BlockBreakEvent> skill = skillPlayer.skill(SkillType.FARMING);
+            experienceSkill(skillPlayer, skill);
             skill.process(event);
         }
     }
@@ -112,8 +115,8 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDeath(EntityDeathEvent event) {
         if(event.getEntity().getKiller() == null) return;
-        experienceSkill(event.getEntity().getKiller(), skillMastery.playerManager()
-                .skillPlayer(event.getEntity().getKiller()).<EntityDeathEvent>skill(SkillType.COMBAT));
+        SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getEntity().getKiller());
+        experienceSkill(skillPlayer, skillPlayer.<EntityDeathEvent>skill(SkillType.COMBAT));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -124,8 +127,8 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onEnchant(EnchantItemEvent event) {
-        experienceSkill(event.getEnchanter(), skillMastery.playerManager()
-                .skillPlayer(event.getEnchanter()).<EnchantItemEvent>skill(SkillType.ENCHANTING));
+        SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getEnchanter());
+        experienceSkill(skillPlayer, skillPlayer.<EnchantItemEvent>skill(SkillType.ENCHANTING));
     }
 
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
@@ -141,17 +144,19 @@ public class PlayerListener implements Listener {
         NBTTagCompound compound = itemStack.t();
         if(compound.e("took")) return;
         Player player = (Player) event.getWhoClicked();
+        SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(player);
 
-        Skill<InventoryClickEvent> skill = skillMastery.playerManager().skillPlayer(player).skill(SkillType.ALCHEMY);
-        experienceSkill(player, skill);
+        Skill<InventoryClickEvent> skill = skillPlayer.skill(SkillType.ALCHEMY);
+        experienceSkill(skillPlayer, skill);
         skill.process(event);
 
         compound.a("took", true);
         event.setCurrentItem(CraftItemStack.asBukkitCopy(itemStack));
     }
 
-    private void experienceSkill(Player player, Skill<? extends Event> skill) {
-        if(skill.experience()) {
+    private void experienceSkill(SkillPlayer skillPlayer, Skill<? extends Event> skill) {
+        Player player = skillPlayer.player();
+        if(skill.experience(skillPlayer)) {
             player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_AQUA + "Level UP " + skill.skillData().name() +
                     " (" + skill.level() + "/" + skill.skillData().maxLevel() + ")"));
             levelUpMessage(player, skill);

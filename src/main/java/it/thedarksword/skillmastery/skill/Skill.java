@@ -1,5 +1,6 @@
 package it.thedarksword.skillmastery.skill;
 
+import it.thedarksword.skillmastery.player.SkillPlayer;
 import org.bukkit.event.Event;
 
 import java.util.List;
@@ -46,8 +47,8 @@ public interface Skill<E extends Event> {
      * Increment experience of the skill, if max call levelUp
      * @return true if levelup
      */
-    default boolean experience() {
-        exp(level() < 30 ? exp() + 9 : exp() + 15);
+    default boolean experience(SkillPlayer player) {
+        exp(level() < 30 ? exp() + Math.round(9 * player.multiplier()): exp() + Math.round(15 * player.multiplier()));
         if(levelUpExp.get(level()) <= exp()) {
             levelUp();
             return true;

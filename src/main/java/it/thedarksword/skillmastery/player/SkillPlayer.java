@@ -6,6 +6,7 @@ import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillType;
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -20,6 +21,7 @@ public class SkillPlayer {
     private final Player player;
     private final Map<SkillType, Skill<? extends Event>> skills = Maps.newEnumMap(SkillType.class);
     private final SkillMastery skillMastery;
+    @Setter private float multiplier = 1;
 
     public SkillPlayer(Player player, SkillMastery skillMastery) {
         this.player = player;
@@ -44,6 +46,15 @@ public class SkillPlayer {
                 e.printStackTrace();
             }
         });
+        if(player.hasPermission("skillmastery.multiplier.4")) {
+            multiplier = 2.1f;
+        } else if(player.hasPermission("skillmastery.multiplier.3")) {
+            multiplier = 1.8f;
+        } else if(player.hasPermission("skillmastery.multiplier.2")) {
+            multiplier = 1.5f;
+        } else if(player.hasPermission("skillmastery.multiplier.1")) {
+            multiplier = 1.2f;
+        }
     }
 
     @SuppressWarnings("unchecked")
