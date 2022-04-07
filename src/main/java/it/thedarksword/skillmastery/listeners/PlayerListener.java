@@ -81,7 +81,7 @@ public class PlayerListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(BlockBreakEvent event) {
         if(event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
         Location location = event.getBlock().getLocation();
@@ -96,6 +96,7 @@ public class PlayerListener implements Listener {
                 return;
             }
         }
+        if(event.isCancelled()) return;
         Material type = event.getBlock().getType();
         if(skillMastery.blockManager().isLog(type)) {
             SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getPlayer());
