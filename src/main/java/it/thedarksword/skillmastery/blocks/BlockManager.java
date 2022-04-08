@@ -21,12 +21,14 @@ public class BlockManager {
             .expireAfterWrite(10, TimeUnit.MINUTES)
             .build();
 
+    private final Set<Material> ores = Sets.newEnumSet(Collections.emptySet(), Material.class);
     private final Set<Material> logs = Sets.newEnumSet(Collections.emptySet(), Material.class);
     private final Set<Material> farm = Sets.newEnumSet(Collections.emptySet(), Material.class);
 
     public BlockManager(CoreProtectAPI coreProtectAPI) {
         this.coreProtectAPI = coreProtectAPI;
 
+        loadOres();
         loadLogs();
         loadFarm();
     }
@@ -43,12 +45,26 @@ public class BlockManager {
         return false;
     }
 
+    public boolean isOre(Material material) {
+        return ores.contains(material);
+    }
+
     public boolean isLog(Material material) {
         return logs.contains(material);
     }
 
     public boolean isFarm(Material material) {
         return farm.contains(material);
+    }
+
+    private void loadOres() {
+        ores.add(Material.COAL_ORE);
+        ores.add(Material.IRON_ORE);
+        ores.add(Material.GOLD_ORE);
+        ores.add(Material.REDSTONE_ORE);
+        ores.add(Material.LAPIS_ORE);
+        ores.add(Material.DIAMOND_ORE);
+        ores.add(Material.EMERALD_ORE);
     }
 
     private void loadLogs() {

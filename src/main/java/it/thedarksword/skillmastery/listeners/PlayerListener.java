@@ -85,19 +85,21 @@ public class PlayerListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         if(event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
         Location location = event.getBlock().getLocation();
-        ApplicableRegionSet regions = WorldGuard.getInstance().getPlatform().getRegionContainer().get(new BukkitWorld(event.getBlock().getWorld()))
-                .getApplicableRegions(BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
-        for (ProtectedRegion region : regions.getRegions()) {
-            if (region.getId().startsWith("miner")) {
-                SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getPlayer());
-                Skill<BlockBreakEvent> skill = skillPlayer.skill(SkillType.MINING);
-                experienceSkill(skillPlayer, skill);
-                skill.process(event);
-                return;
+        Material type = event.getBlock().getType();
+        if(skillMastery.blockManager().isOre(type)) {
+            ApplicableRegionSet regions = WorldGuard.getInstance().getPlatform().getRegionContainer().get(new BukkitWorld(event.getBlock().getWorld()))
+                    .getApplicableRegions(BlockVector3.at(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
+            for (ProtectedRegion region : regions.getRegions()) {
+                if (region.getId().startsWith("miner")) {
+                    SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getPlayer());
+                    Skill<BlockBreakEvent> skill = skillPlayer.skill(SkillType.MINING);
+                    experienceSkill(skillPlayer, skill);
+                    skill.process(event);
+                    return;
+                }
             }
         }
         if(event.isCancelled()) return;
-        Material type = event.getBlock().getType();
         if(skillMastery.blockManager().isLog(type)) {
             SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getPlayer());
             Skill<BlockBreakEvent> skill = skillPlayer.skill(SkillType.FORAGING);
@@ -166,7 +168,8 @@ public class PlayerListener implements Listener {
                 player.sendMessage(ChatColor.RED + "Errore durante il pagamento. Fai uno screenshot e contatta un amministratore (" + r.errorMessage + ")");
             }
         } else {
-            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_AQUA + "+" + (skill.level() < 30 ? 9 : 15) + " " +
+            player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(ChatColor.DARK_AQUA + "+" + (skill.level() < 30 ?
+                    Math.round(9 * skillPlayer.multiplier()) : Math.round(15 * skillPlayer.multiplier())) + " " +
                     skill.skillData().name() + " (" + skill.exp() + "/" + skill.expToNextLevel() + ")"));
         }
     }

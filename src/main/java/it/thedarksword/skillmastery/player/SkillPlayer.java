@@ -21,7 +21,7 @@ public class SkillPlayer {
     private final Player player;
     private final Map<SkillType, Skill<? extends Event>> skills = Maps.newEnumMap(SkillType.class);
     private final SkillMastery skillMastery;
-    @Setter private float multiplier = 1;
+    @Setter private float multiplier;
 
     public SkillPlayer(Player player, SkillMastery skillMastery) {
         this.player = player;
@@ -54,6 +54,8 @@ public class SkillPlayer {
             multiplier = 1.5f;
         } else if(player.hasPermission("skillmastery.multiplier.1")) {
             multiplier = 1.2f;
+        } else {
+            multiplier = 1;
         }
     }
 
