@@ -7,6 +7,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -99,10 +100,9 @@ public class MiningSkill implements Skill<BlockBreakEvent> {
     }
 
     private void doEvent(BlockBreakEvent event) {
-        World world = event.getBlock().getWorld();
-        Location location = event.getBlock().getLocation();
-        for (ItemStack drop : event.getBlock().getDrops()) {
-            world.dropItemNaturally(location, drop);
+        Player player = event.getPlayer();
+        for (ItemStack drop : event.getBlock().getDrops(event.getPlayer().getInventory().getItemInMainHand())) {
+            player.getInventory().addItem(drop);
         }
     }
 }
