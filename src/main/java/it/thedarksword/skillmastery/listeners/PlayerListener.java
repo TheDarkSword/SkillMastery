@@ -94,7 +94,9 @@ public class PlayerListener implements Listener {
                     SkillPlayer skillPlayer = skillMastery.playerManager().skillPlayer(event.getPlayer());
                     Skill<BlockBreakEvent> skill = skillPlayer.skill(SkillType.MINING);
                     experienceSkill(skillPlayer, skill);
-                    skill.process(event);
+                    if(skill.process(event)) {
+                        event.setDropItems(false);
+                    }
                     return;
                 }
             }

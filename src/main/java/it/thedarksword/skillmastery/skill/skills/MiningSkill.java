@@ -4,9 +4,8 @@ import it.thedarksword.skillmastery.skill.Skill;
 import it.thedarksword.skillmastery.skill.SkillData;
 import it.thedarksword.skillmastery.skill.SkillType;
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -57,6 +56,7 @@ public class MiningSkill implements Skill<BlockBreakEvent> {
 
     @Override
     public boolean process(BlockBreakEvent event) {
+        if(event.getPlayer().getInventory().getItemInMainHand().containsEnchantment(Enchantment.SILK_TOUCH)) return false;
         int take = random.nextInt(100);
         boolean result = false;
         if(x3 == 0) {
@@ -101,8 +101,25 @@ public class MiningSkill implements Skill<BlockBreakEvent> {
 
     private void doEvent(BlockBreakEvent event) {
         Player player = event.getPlayer();
-        for (ItemStack drop : event.getBlock().getDrops(event.getPlayer().getInventory().getItemInMainHand())) {
+        ItemStack tool = event.getPlayer().getInventory().getItemInMainHand();
+        for (ItemStack drop : event.getBlock().getDrops(tool)) {
+            if(tool.containsEnchantment(Enchantment.SILK_TOUCH)) {
+               drop.setAmount(1);
+            } else {
+                drop.setAmount(getDropCount(tool.getEnchantmentLevel(Enchantment.LOOT_BONUS_BLOCKS)));
+            }
             player.getInventory().addItem(drop);
         }
+    }
+
+    private int getDropCount(int fortuneLevel) {
+        if (fortuneLevel > 0) {
+            int drops = random.nextInt(fortuneLevel + 2) - 1;
+            if (drops < 0) {
+                drops = 0;
+            }
+            return drops + 1;
+        }
+        return 1;
     }
 }
